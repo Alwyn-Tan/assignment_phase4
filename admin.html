@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Panel - Future Drinks</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <strong>Future Drinks Admin</strong>
+        </a>
+        <div class="admin-nav-links">
+          <a class="button" href="index.html">Back to Shop</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main admin-main">
+    <div class="container">
+      <section class="admin-status-wrap">
+        <h1>Admin Panel</h1>
+        <p>Manage categories and products in SQLite.</p>
+        <div id="status" class="admin-status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-card-head">
+          <h2>Category Management</h2>
+        </div>
+        <form id="category-form" class="admin-form" autocomplete="off">
+          <input type="hidden" id="category-id" />
+          <div class="admin-grid two">
+            <label class="admin-field">
+              <span>Category Name</span>
+              <input id="category-name" name="name" type="text" maxlength="80" required placeholder="e.g. Fruit Tea" />
+            </label>
+          </div>
+          <div class="admin-actions">
+            <button id="category-submit" class="button primary" type="submit">Add Category</button>
+            <button id="category-cancel" class="button" type="button">Cancel Edit</button>
+          </div>
+        </form>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="category-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-card-head">
+          <h2>Product Management</h2>
+        </div>
+        <form id="product-form" class="admin-form" enctype="multipart/form-data" autocomplete="off">
+          <input type="hidden" id="product-id" />
+          <div class="admin-grid three">
+            <label class="admin-field">
+              <span>Category</span>
+              <select id="product-catid" name="catid" required></select>
+            </label>
+            <label class="admin-field">
+              <span>Name</span>
+              <input id="product-name" name="name" type="text" maxlength="120" required placeholder="Product name" />
+            </label>
+            <label class="admin-field">
+              <span>Price</span>
+              <input id="product-price" name="price" type="number" min="0" step="0.01" required placeholder="0.00" />
+            </label>
+          </div>
+          <div class="admin-grid one">
+            <label class="admin-field">
+              <span>Description</span>
+              <textarea id="product-description" name="description" rows="4" maxlength="4000"
+                placeholder="Product description"></textarea>
+            </label>
+          </div>
+          <div class="admin-grid two">
+            <label class="admin-field">
+              <span>Image (jpg/png/webp, max 10MB)</span>
+              <input id="product-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+            </label>
+            <div class="admin-preview">
+              <span>Current Thumbnail</span>
+              <img id="product-preview" src="" alt="No image selected" />
+            </div>
+          </div>
+          <div class="admin-actions">
+            <button id="product-submit" class="button primary" type="submit">Add Product</button>
+            <button id="product-cancel" class="button" type="button">Cancel Edit</button>
+          </div>
+        </form>
+
+        <div class="admin-filter-row">
+          <label>
+            Filter by category:
+            <select id="product-filter-catid">
+              <option value="">All</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="product-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="admin.js" defer></script>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Future Drinks</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="container">
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <strong>Furture Drinks</strong>
+        </a>
+
+        <form class="search" action="#" role="search">
+          <input type="search" placeholder="Search..." name="q">
+        </form>
+
+        <a class="button" href="admin.html">Admin</a>
+
+        <div class="cart">
+          <input id="cart-toggle" type="checkbox" class="visually-hidden">
+
+          <label class="cart-btn" for="cart-toggle">
+            <span class="label-text">Cart</span>
+            <span id="cart-count" class="badge">0</span>
+          </label>
+
+          <aside class="cart-panel">
+            <h3>Your Cart</h3>
+            <div id="cart-items" class="cart-items"></div>
+            <div class="cart-summary">
+              <span>Total</span>
+              <strong id="cart-total">$0.00</strong>
+            </div>
+            <div class="cart-actions">
+              <button class="button" type="button">View All</button>
+              <button class="button primary" type="button">Checkout</button>
+            </div>
+          </aside>
+          <label class="cart-backdrop" for="cart-toggle" aria-hidden="true"></label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="catalog">
+        <aside class="sidebar">
+          <div class="filter-section">
+            <h3>Drink Categories</h3>
+            <nav id="category-links" class="filter-links"></nav>
+          </div>
+
+          <div class="filter-section">
+            <h3>Price Range</h3>
+            <div class="filter-group-alt">
+              <label class="check"><input type="checkbox" name="price-range" value="0-20"> $0 - $20</label>
+              <label class="check"><input type="checkbox" name="price-range" value="20-35"> $20 - $35</label>
+              <label class="check"><input type="checkbox" name="price-range" value="35+"> $35+</label>
+            </div>
+          </div>
+
+        </aside>
+
+        <div class="catalog-main">
+          <section class="hero">
+            <div class="hero-content">
+              <nav class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">/</span>
+                <span id="catalog-current" aria-current="page">Popular Picks</span>
+              </nav>
+              <h1>Discover Future Drinks</h1>
+              <p>An urban beverage shop focused on fruit tea, coffee, and milk tea, with bright and layered flavors.</p>
+              <div class="hero-actions">
+                <button class="button primary">Shop Now</button>
+                <button class="button">Learn More</button>
+              </div>
+            </div>
+          </section>
+
+          <section id="product-grid" class="product-grid"></section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <span>TAN Shixiang, 1155238635, IEMS 5730</span>
+      </div>
+    </div>
+  </footer>
+  <script src="cart.js" defer></script>
+  <script src="index.js" defer></script>
+</body>
+
+</html>

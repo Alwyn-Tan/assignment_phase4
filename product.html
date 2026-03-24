@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Peach Oolong Fruit Tea - IEMS Shop</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <div class="topbar">
+        <a class="brand" href="index.html">
+          <strong>Furture Drinks</strong>
+        </a>
+
+        <form class="search" action="#" role="search">
+          <input type="search" placeholder="Search drinks..." name="q">
+        </form>
+
+        <a class="button" href="admin.html">Admin</a>
+
+        <div class="cart">
+          <input id="cart-toggle" type="checkbox" aria-hidden="true" class="visually-hidden">
+          <label class="cart-btn" for="cart-toggle">
+            <span class="label-text">Cart</span>
+            <span id="cart-count" class="badge">0</span>
+          </label>
+
+          <aside class="cart-panel">
+            <h3>Your Cart</h3>
+            <div id="cart-items" class="cart-items"></div>
+            <div class="cart-summary">
+              <span>Total</span>
+              <strong id="cart-total">$0.00</strong>
+            </div>
+            <div class="cart-actions">
+              <button class="button" type="button">View All</button>
+              <button class="button primary" type="button">Checkout</button>
+            </div>
+          </aside>
+          <label class="cart-backdrop" for="cart-toggle" aria-hidden="true"></label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="index.html">All Drinks</a>
+        <span class="sep">/</span>
+        <a id="breadcrumb-category" href="#">Category</a>
+        <span class="sep">/</span>
+        <span id="breadcrumb-product" aria-current="page">Loading...</span>
+      </nav>
+
+      <section class="product-detail-layout">
+        <div class="product-visual">
+          <div class="product-gallery">
+            <div class="gallery-stage">
+              <figure class="gallery-slide" style="opacity:1;transform:none;position:relative;">
+                <img id="product-main-image" src="" alt="Product image">
+              </figure>
+            </div>
+
+            <div class="gallery-thumbs">
+              <span class="thumb">
+                <img id="product-thumb-image" src="" alt="Product thumbnail">
+              </span>
+            </div>
+          </div>
+
+          <div class="product-long-desc">
+            <h2>About This Drink</h2>
+            <p id="product-description">Loading description...</p>
+            <ul class="feature-list">
+              <li>Freshly prepared with quality ingredients</li>
+              <li>Flavor and sweetness can be customized</li>
+              <li>Suitable for takeaway and dine-in</li>
+            </ul>
+          </div>
+        </div>
+
+        <aside class="product-checkout-panel">
+          <div class="sticky-content">
+            <div class="product-header">
+              <span id="product-category" class="category-tag">Loading...</span>
+              <h1 id="product-name">Loading...</h1>
+              <div class="sku-info"><span id="product-sku">PID: -</span> <span class="status-stock"></span></div>
+            </div>
+
+            <div class="price-block">
+              <span class="currency">$</span>
+              <span id="product-price" class="amount">0.00</span>
+            </div>
+
+            <div class="purchase-box">
+              <div class="field-group">
+                <label for="qty">Quantity</label>
+                <div class="qty-input-wrapper">
+                  <input type="number" id="qty" value="1" min="1">
+                </div>
+              </div>
+
+              <div class="purchase-actions">
+                <button id="product-add-to-cart" class="button primary x-large" type="button">Add to Cart</button>
+                <button id="product-buy-now" class="button x-large" type="button">Buy Now</button>
+              </div>
+            </div>
+
+            <div class="trust-signals">
+              <div class="signal-item">
+                <span class="icon">🚚</span>
+                <div>
+                  <strong>Free Shipping</strong>
+                  <p>Free standard shipping on orders over $50.</p>
+                </div>
+              </div>
+              <div class="signal-item">
+                <span class="icon">🛡️</span>
+                <div>
+                  <strong>Secure Service</strong>
+                  <p>14-day hassle-free returns.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <a href="index.html">Back to Home</a>
+      </div>
+    </div>
+  </footer>
+  <script src="cart.js" defer></script>
+  <script src="product.js" defer></script>
+</body>
+
+</html>
