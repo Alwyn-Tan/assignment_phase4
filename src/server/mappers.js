@@ -2,6 +2,8 @@ const {
   maxCategoryNameLen,
   maxProductNameLen,
   maxDescriptionLen,
+  maxDisplayNameLen,
+  maxEmailLen,
 } = require("./constants");
 const { InternalServerError } = require("./errors/app-error");
 const {
@@ -46,6 +48,20 @@ function mapProductRow(row) {
   };
 }
 
+function mapUserRow(row) {
+  const userid = toPositiveInt(row?.userid);
+  if (!userid) {
+    return null;
+  }
+
+  return {
+    userid,
+    email: toSafeOutputText(row.email, maxEmailLen),
+    display_name: toSafeOutputText(row.display_name, maxDisplayNameLen),
+    is_admin: Number(row.is_admin) === 1,
+  };
+}
+
 function requireMapped(row, mapper) {
   const mapped = mapper(row);
   if (!mapped) {
@@ -57,5 +73,6 @@ function requireMapped(row, mapper) {
 module.exports = {
   mapCategoryRow,
   mapProductRow,
+  mapUserRow,
   requireMapped,
 };

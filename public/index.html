@@ -28,8 +28,6 @@
           >
         </form>
 
-        <a class="button" href="admin.html">Admin</a>
-
         <div class="cart">
           <input id="cart-toggle" type="checkbox" class="visually-hidden">
 
@@ -51,6 +49,15 @@
             </div>
           </aside>
           <label class="cart-backdrop" for="cart-toggle" aria-hidden="true"></label>
+        </div>
+
+        <div class="user-nav">
+          <span class="user-pill">Hello, <strong data-auth-user>guest</strong></span>
+          <a class="button small" data-auth-guest-only href="/login">Login</a>
+          <a class="button small" data-auth-guest-only href="/register">Register</a>
+          <a class="button small" data-auth-user-only hidden href="/change-password">Password</a>
+          <a class="button small" data-auth-admin-only hidden href="/admin">Admin</a>
+          <button class="button small" type="button" data-auth-logout hidden>Logout</button>
         </div>
       </div>
     </div>
@@ -107,6 +114,7 @@
     </div>
   </footer>
   <script src="js/common/client-utils.js" defer></script>
+  <script src="js/common/auth-ui.js" defer></script>
   <script src="js/cart/cart-storage.js" defer></script>
   <script src="js/cart/cart-view.js" defer></script>
   <script src="js/cart/cart.js" defer></script>

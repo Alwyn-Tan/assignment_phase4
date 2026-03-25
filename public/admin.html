@@ -12,11 +12,14 @@
   <header class="header">
     <div class="container">
       <div class="topbar">
-        <a class="brand" href="index.html">
+        <a class="brand" href="/">
           <strong>Future Drinks Admin</strong>
         </a>
-        <div class="admin-nav-links">
-          <a class="button" href="index.html">Back to Shop</a>
+        <div class="user-nav">
+          <span class="user-pill">Signed in as <strong data-auth-user>guest</strong></span>
+          <a class="button small" href="/">Shop</a>
+          <a class="button small" href="/change-password">Password</a>
+          <button class="button small" type="button" data-auth-logout>Logout</button>
         </div>
       </div>
     </div>
@@ -164,6 +167,7 @@
   </main>
 
   <script src="js/common/client-utils.js" defer></script>
+  <script src="js/common/auth-ui.js" defer></script>
   <script src="js/admin/admin-common.js" defer></script>
   <script src="js/admin/admin.js" defer></script>
 </body>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Future Drinks</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="topbar">
+        <a class="brand" href="/">
+          <strong>Future Drinks</strong>
+        </a>
+
+        <div class="user-nav">
+          <span class="user-pill">Hello, <strong data-auth-user>guest</strong></span>
+          <a class="button small" href="/">Shop</a>
+          <a class="button small" data-auth-guest-only href="/register">Register</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main auth-main">
+    <div class="container auth-shell">
+      <section class="auth-card">
+        <h1>Login</h1>
+        <p>Admin demo account: <code>admin@futuredrinks.test</code> / <code>Admin123!</code></p>
+        <p>User demo account: <code>user@futuredrinks.test</code> / <code>User12345!</code></p>
+        <div id="auth-status" class="auth-status" role="status" aria-live="polite"></div>
+
+        <form id="login-form" class="auth-form" autocomplete="off">
+          <label class="admin-field">
+            <span>Email</span>
+            <input id="login-email" name="email" type="email" maxlength="254" required />
+          </label>
+          <label class="admin-field">
+            <span>Password</span>
+            <input id="login-password" name="password" type="password" minlength="8" maxlength="72" required />
+          </label>
+          <div class="auth-actions">
+            <button class="button primary" type="submit">Login</button>
+            <a class="button" href="/register">Create Account</a>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/common/client-utils.js" defer></script>
+  <script src="js/common/auth-ui.js" defer></script>
+  <script src="js/pages/login.js" defer></script>
+</body>
+
+</html>

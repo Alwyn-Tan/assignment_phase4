@@ -48,9 +48,22 @@ function all(sql, params = []) {
   });
 }
 
+function exec(sql) {
+  return new Promise((resolve, reject) => {
+    db.exec(sql, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
 module.exports = {
   db,
   run,
   get,
   all,
+  exec,
 };

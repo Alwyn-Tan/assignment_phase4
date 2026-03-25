@@ -66,6 +66,14 @@
     }
 
     if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Please log in first.");
+      }
+      if (response.status === 403) {
+        window.location.href = "/";
+        throw new Error("Admin access is required.");
+      }
       const error = payload && payload.error ? payload.error : "Request failed.";
       throw new Error(error);
     }
