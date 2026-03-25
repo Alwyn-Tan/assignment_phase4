@@ -1,20 +1,37 @@
+/**
+ * Shop home page controller.
+ * Business logic only; shared sanitizers come from client-utils.js.
+ */
+const utils = window.clientUtils;
+if (!utils) {
+  throw new Error("client-utils.js must be loaded before index.js");
+}
+
+const {
+  toStrictPositiveInt,
+  sanitizeSingleLineText,
+  sanitizeMultilineText,
+  sanitizeUploadImagePath,
+} = utils;
+
 const categoryLinksEl = document.getElementById("category-links");
 const productGridEl = document.getElementById("product-grid");
 const breadcrumbCurrentEl = document.getElementById("catalog-current");
 const priceRangeInputs = Array.from(
   document.querySelectorAll("input[name='price-range']")
 );
+const searchInputEl = document.querySelector(".search input[name='q']");
 
 let allProducts = [];
 
+// Read the category filter from the URL so the page can render deep-linked views.
 function parseCatidFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const raw = params.get("catid");
   if (!raw) {
     return null;
   }
-  const parsed = Number.parseInt(raw, 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
+  return toStrictPositiveInt(raw);
 }
 
 function formatPrice(value) {
@@ -25,6 +42,7 @@ function formatPrice(value) {
   return `$${parsed.toFixed(2)}`;
 }
 
+// Replace the product grid with a single status/empty-state message.
 function setGridMessage(message) {
   productGridEl.innerHTML = "";
   const div = document.createElement("div");
@@ -33,6 +51,7 @@ function setGridMessage(message) {
   productGridEl.appendChild(div);
 }
 
+// Convert price-like values from the API into usable numbers for filtering.
 function parsePriceNumber(value) {
   const parsed = Number.parseFloat(value);
   if (!Number.isFinite(parsed) || parsed < 0) {
@@ -45,6 +64,7 @@ function getSelectedPriceRanges() {
   return priceRangeInputs.filter((input) => input.checked).map((input) => input.value);
 }
 
+// Keep the UI filter values and the comparison logic in one place.
 function matchesPriceRange(price, range) {
   if (range === "0-20") {
     return price <= 20;
@@ -58,6 +78,7 @@ function matchesPriceRange(price, range) {
   return false;
 }
 
+// Apply the currently selected price filters to the in-memory product list.
 function getFilteredProducts(products) {
   const selectedRanges = getSelectedPriceRanges();
   if (!selectedRanges.length) {
@@ -77,16 +98,18 @@ function renderFilteredProducts() {
   renderProducts(getFilteredProducts(allProducts));
 }
 
+// Build category anchors with the same sanitization rules as the rest of the page.
 function createCategoryLink(text, href, isActive) {
   const link = document.createElement("a");
   link.href = href;
-  link.textContent = text;
+  link.textContent = sanitizeSingleLineText(text, 80);
   if (isActive) {
     link.classList.add("active");
   }
   return link;
 }
 
+// Provide quick visual feedback after adding an item without requiring a full rerender.
 function flashAddState(button) {
   const originalText = button.textContent;
   button.textContent = "Added";
@@ -115,6 +138,7 @@ function bindHomeAddToCart(button, pid) {
   });
 }
 
+// Render the category navigation and keep the breadcrumb in sync with the active filter.
 function renderCategories(categories, activeCatid) {
   categoryLinksEl.innerHTML = "";
   categoryLinksEl.appendChild(
@@ -122,30 +146,46 @@ function renderCategories(categories, activeCatid) {
   );
 
   for (const category of categories) {
-    const href = `index.html?catid=${category.catid}`;
-    const isActive = activeCatid === category.catid;
+    const catid = toStrictPositiveInt(category.catid);
+    if (!catid) {
+      continue;
+    }
+    const href = `index.html?catid=${catid}`;
+    const isActive = activeCatid === catid;
     categoryLinksEl.appendChild(
       createCategoryLink(category.name, href, isActive)
     );
   }
 
   const activeName = activeCatid
-    ? categories.find((item) => item.catid === activeCatid)?.name
+    ? categories.find((item) => toStrictPositiveInt(item.catid) === activeCatid)?.name
     : "Popular Picks";
-  breadcrumbCurrentEl.textContent = activeName || "Popular Picks";
+  breadcrumbCurrentEl.textContent = sanitizeSingleLineText(
+    activeName || "Popular Picks",
+    80
+  );
 }
 
+// Create a sanitized product card entirely with DOM APIs to avoid injecting raw HTML.
 function createProductCard(product) {
   const article = document.createElement("article");
   article.className = "card";
+  const safePid = toStrictPositiveInt(product.pid);
+  if (!safePid) {
+    return null;
+  }
+  const safeName = sanitizeSingleLineText(product.name, 120) || "Unnamed Product";
+  const safeDescription = sanitizeMultilineText(product.description || "", 4000);
+  const safeThumbPath = sanitizeUploadImagePath(product.thumb_path);
+  const safeOriginalPath = sanitizeUploadImagePath(product.image_path);
 
   const thumbLink = document.createElement("a");
   thumbLink.className = "thumb";
-  thumbLink.href = `product.html?pid=${product.pid}`;
+  thumbLink.href = `product.html?pid=${safePid}`;
 
   const image = document.createElement("img");
-  image.src = product.thumb_path || product.image_path || "";
-  image.alt = product.name;
+  image.src = safeThumbPath || safeOriginalPath;
+  image.alt = safeName;
   thumbLink.appendChild(image);
 
   const body = document.createElement("div");
@@ -156,8 +196,8 @@ function createProductCard(product) {
 
   const h2 = document.createElement("h2");
   const titleLink = document.createElement("a");
-  titleLink.href = `product.html?pid=${product.pid}`;
-  titleLink.textContent = product.name;
+  titleLink.href = `product.html?pid=${safePid}`;
+  titleLink.textContent = safeName;
   h2.appendChild(titleLink);
 
   const price = document.createElement("span");
@@ -167,19 +207,16 @@ function createProductCard(product) {
   titleRow.append(h2, price);
 
   const desc = document.createElement("p");
-  desc.textContent = product.description || "No description.";
+  desc.textContent = safeDescription || "No description.";
 
   const actions = document.createElement("div");
   actions.className = "actions";
   const button = document.createElement("button");
   button.className = "button primary";
   button.type = "button";
-  const pid = Number.parseInt(product.pid, 10);
-  if (Number.isInteger(pid) && pid > 0) {
-    button.dataset.cartAdd = String(pid);
-    button.dataset.pid = String(pid);
-    bindHomeAddToCart(button, pid);
-  }
+  button.dataset.cartAdd = String(safePid);
+  button.dataset.pid = String(safePid);
+  bindHomeAddToCart(button, safePid);
   button.textContent = "Add to Cart";
   actions.appendChild(button);
 
@@ -188,6 +225,7 @@ function createProductCard(product) {
   return article;
 }
 
+// Rebuild the visible product grid from the current dataset.
 function renderProducts(products) {
   productGridEl.innerHTML = "";
   if (!products.length) {
@@ -196,10 +234,14 @@ function renderProducts(products) {
   }
 
   for (const product of products) {
-    productGridEl.appendChild(createProductCard(product));
+    const card = createProductCard(product);
+    if (card) {
+      productGridEl.appendChild(card);
+    }
   }
 }
 
+// Centralize fetch error handling so category and product requests behave consistently.
 async function fetchJson(url) {
   const response = await fetch(url);
   if (!response.ok) {
@@ -208,6 +250,7 @@ async function fetchJson(url) {
   return response.json();
 }
 
+// Initialize categories first, then load products for the selected category.
 async function initCatalog() {
   const catid = parseCatidFromUrl();
 
@@ -233,10 +276,19 @@ async function initCatalog() {
   }
 }
 
+// Price filters operate entirely on the already loaded product list.
 for (const input of priceRangeInputs) {
   input.addEventListener("change", () => {
     renderFilteredProducts();
   });
 }
 
+if (searchInputEl) {
+  searchInputEl.addEventListener("input", () => {
+    // Keep the home-page search box sanitized even before the query is submitted elsewhere.
+    searchInputEl.value = sanitizeSingleLineText(searchInputEl.value, 60);
+  });
+}
+
+// Kick off the initial page render once the script has been loaded.
 initCatalog();

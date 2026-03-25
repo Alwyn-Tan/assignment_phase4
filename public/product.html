@@ -17,8 +17,15 @@
           <strong>Furture Drinks</strong>
         </a>
 
-        <form class="search" action="#" role="search">
-          <input type="search" placeholder="Search drinks..." name="q">
+        <form class="search" action="#" role="search" autocomplete="off">
+          <input
+            type="search"
+            placeholder="Search drinks..."
+            name="q"
+            maxlength="60"
+            pattern="[^<>]{0,60}"
+            title="Up to 60 characters. Angle brackets are not allowed."
+          >
         </form>
 
         <a class="button" href="admin.html">Admin</a>
@@ -62,7 +69,7 @@
         <div class="product-visual">
           <div class="product-gallery">
             <div class="gallery-stage">
-              <figure class="gallery-slide" style="opacity:1;transform:none;position:relative;">
+              <figure class="gallery-slide gallery-slide-active">
                 <img id="product-main-image" src="" alt="Product image">
               </figure>
             </div>
@@ -102,7 +109,7 @@
               <div class="field-group">
                 <label for="qty">Quantity</label>
                 <div class="qty-input-wrapper">
-                  <input type="number" id="qty" value="1" min="1">
+                  <input type="number" id="qty" value="1" min="1" max="999" step="1" required inputmode="numeric">
                 </div>
               </div>
 
@@ -141,8 +148,11 @@
       </div>
     </div>
   </footer>
-  <script src="cart.js" defer></script>
-  <script src="product.js" defer></script>
+  <script src="js/common/client-utils.js" defer></script>
+  <script src="js/cart/cart-storage.js" defer></script>
+  <script src="js/cart/cart-view.js" defer></script>
+  <script src="js/cart/cart.js" defer></script>
+  <script src="js/pages/product.js" defer></script>
 </body>
 
 </html>

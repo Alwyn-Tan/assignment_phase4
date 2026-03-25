@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check admin.js && node --check index.js && node --check product.js && node --check cart.js && node --check src/db/database.js",
+    "check": "node --check server.js && node --check src/server/app.js && node --check src/server/constants.js && node --check src/server/http.js && node --check src/server/errors/app-error.js && node --check src/server/validation.js && node --check src/server/mappers.js && node --check src/server/image-service.js && node --check src/server/controllers/catalog-controller.js && node --check src/server/services/catalog-service.js && node --check src/server/data/category-queries.js && node --check src/server/data/product-queries.js && node --check src/server/validators/catalog-validator.js && node --check src/server/middleware/security.js && node --check src/server/middleware/error-handler.js && node --check src/server/routes/index.js && node --check src/server/routes/catalog-routes.js && node --check public/js/common/client-utils.js && node --check public/js/admin/admin-common.js && node --check public/js/admin/admin.js && node --check public/js/pages/index.js && node --check public/js/pages/product.js && node --check public/js/cart/cart-storage.js && node --check public/js/cart/cart-view.js && node --check public/js/cart/cart.js && node --check src/db/database.js",
     "migrate:images": "bash scripts/sync_upload_images.sh"
   },
   "dependencies": {

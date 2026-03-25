@@ -1,3 +1,19 @@
+/**
+ * Product detail page controller.
+ * Shared sanitizers are centralized in client-utils.js.
+ */
+const utils = window.clientUtils;
+if (!utils) {
+  throw new Error("client-utils.js must be loaded before product.js");
+}
+
+const {
+  toStrictPositiveInt,
+  sanitizeSingleLineText,
+  sanitizeMultilineText,
+  sanitizeUploadImagePath,
+} = utils;
+
 const breadcrumbCategoryEl = document.getElementById("breadcrumb-category");
 const breadcrumbProductEl = document.getElementById("breadcrumb-product");
 const categoryTagEl = document.getElementById("product-category");
@@ -10,13 +26,14 @@ const productThumbImageEl = document.getElementById("product-thumb-image");
 const quantityInputEl = document.getElementById("qty");
 const addToCartBtn = document.getElementById("product-add-to-cart");
 const buyNowBtn = document.getElementById("product-buy-now");
+const searchInputEl = document.querySelector(".search input[name='q']");
 
 function parsePidFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const pidRaw = params.get("pid");
   if (pidRaw) {
-    const pid = Number.parseInt(pidRaw, 10);
-    if (Number.isInteger(pid) && pid > 0) {
+    const pid = toStrictPositiveInt(pidRaw);
+    if (pid) {
       return pid;
     }
   }
@@ -29,8 +46,7 @@ function parsePidFromUrl() {
   if (!digits) {
     return null;
   }
-  const pid = Number.parseInt(digits[0], 10);
-  return Number.isInteger(pid) && pid > 0 ? pid : null;
+  return toStrictPositiveInt(digits[0]);
 }
 
 function setErrorState(message) {
@@ -52,29 +68,42 @@ function setErrorState(message) {
 }
 
 function applyProduct(product) {
-  document.title = `${product.name} - Future Drinks`;
+  const safePid = toStrictPositiveInt(product.pid);
+  const safeCatid = toStrictPositiveInt(product.catid);
+  if (!safePid || !safeCatid) {
+    setErrorState("Invalid product data.");
+    return;
+  }
 
-  categoryTagEl.textContent = product.category_name || "Category";
-  productNameEl.textContent = product.name;
-  breadcrumbProductEl.textContent = product.name;
-  breadcrumbCategoryEl.textContent = product.category_name || "Category";
-  breadcrumbCategoryEl.href = `index.html?catid=${product.catid}`;
+  const safeName = sanitizeSingleLineText(product.name, 120) || "Product";
+  const safeCategoryName = sanitizeSingleLineText(product.category_name, 80) || "Category";
+  const safeDescription = sanitizeMultilineText(product.description || "", 4000);
 
-  productSkuEl.textContent = `PID: ${product.pid} - In Stock`;
+  document.title = `${safeName} - Future Drinks`;
+
+  categoryTagEl.textContent = safeCategoryName;
+  productNameEl.textContent = safeName;
+  breadcrumbProductEl.textContent = safeName;
+  breadcrumbCategoryEl.textContent = safeCategoryName;
+  breadcrumbCategoryEl.href = `index.html?catid=${safeCatid}`;
+
+  productSkuEl.textContent = `PID: ${safePid} - In Stock`;
   productPriceEl.textContent = Number(product.price).toFixed(2);
-  productDescriptionEl.textContent = product.description || "No description.";
+  productDescriptionEl.textContent = safeDescription || "No description.";
 
-  const mainImage = product.image_path || product.thumb_path || "";
-  const thumbImage = product.thumb_path || product.image_path || "";
+  const safeMainImage = sanitizeUploadImagePath(product.image_path);
+  const safeThumbImage = sanitizeUploadImagePath(product.thumb_path);
+  const mainImage = safeMainImage || safeThumbImage;
+  const thumbImage = safeThumbImage || safeMainImage;
 
   productMainImageEl.src = mainImage;
-  productMainImageEl.alt = `${product.name} image`;
+  productMainImageEl.alt = `${safeName} image`;
   productThumbImageEl.src = thumbImage;
-  productThumbImageEl.alt = `${product.name} thumbnail`;
+  productThumbImageEl.alt = `${safeName} thumbnail`;
 
   if (addToCartBtn) {
     addToCartBtn.disabled = false;
-    addToCartBtn.dataset.cartAdd = String(product.pid);
+    addToCartBtn.dataset.cartAdd = String(safePid);
     addToCartBtn.dataset.cartQtySource = "#qty";
   }
   if (buyNowBtn) {
@@ -84,19 +113,19 @@ function applyProduct(product) {
 
 function getPagePid() {
   const pidRaw = addToCartBtn ? addToCartBtn.dataset.cartAdd : "";
-  const pid = Number.parseInt(pidRaw, 10);
-  return Number.isInteger(pid) && pid > 0 ? pid : null;
+  return toStrictPositiveInt(pidRaw);
 }
 
 function getDesiredQuantity() {
   if (!quantityInputEl) {
     return 1;
   }
-  const qty = Number.parseInt(quantityInputEl.value, 10);
-  if (!Number.isInteger(qty) || qty <= 0) {
+  const qty = Number.parseInt(String(quantityInputEl.value).trim(), 10);
+  if (!Number.isInteger(qty) || qty <= 0 || qty > 999) {
+    quantityInputEl.value = "1";
     return 1;
   }
-  return Math.min(qty, 999);
+  return qty;
 }
 
 async function initProductPage() {
@@ -131,6 +160,23 @@ if (buyNowBtn) {
         window.shopCart.openPanel();
       }
     }
+  });
+}
+
+if (quantityInputEl) {
+  quantityInputEl.addEventListener("input", () => {
+    const qty = Number.parseInt(String(quantityInputEl.value).trim(), 10);
+    if (!Number.isInteger(qty) || qty <= 0) {
+      quantityInputEl.value = "1";
+      return;
+    }
+    quantityInputEl.value = String(Math.min(qty, 999));
+  });
+}
+
+if (searchInputEl) {
+  searchInputEl.addEventListener("input", () => {
+    searchInputEl.value = sanitizeSingleLineText(searchInputEl.value, 60);
   });
 }
 

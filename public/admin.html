@@ -39,7 +39,17 @@
           <div class="admin-grid two">
             <label class="admin-field">
               <span>Category Name</span>
-              <input id="category-name" name="name" type="text" maxlength="80" required placeholder="e.g. Fruit Tea" />
+              <input
+                id="category-name"
+                name="name"
+                type="text"
+                minlength="1"
+                maxlength="80"
+                pattern="[^<>]{1,80}"
+                required
+                placeholder="e.g. Fruit Tea"
+                title="1-80 characters. Angle brackets are not allowed."
+              />
             </label>
           </div>
           <div class="admin-actions">
@@ -74,11 +84,31 @@
             </label>
             <label class="admin-field">
               <span>Name</span>
-              <input id="product-name" name="name" type="text" maxlength="120" required placeholder="Product name" />
+              <input
+                id="product-name"
+                name="name"
+                type="text"
+                minlength="1"
+                maxlength="120"
+                pattern="[^<>]{1,120}"
+                required
+                placeholder="Product name"
+                title="1-120 characters. Angle brackets are not allowed."
+              />
             </label>
             <label class="admin-field">
               <span>Price</span>
-              <input id="product-price" name="price" type="number" min="0" step="0.01" required placeholder="0.00" />
+              <input
+                id="product-price"
+                name="price"
+                type="number"
+                min="0"
+                max="9999999.99"
+                step="0.01"
+                required
+                inputmode="decimal"
+                placeholder="0.00"
+              />
             </label>
           </div>
           <div class="admin-grid one">
@@ -133,7 +163,9 @@
     </div>
   </main>
 
-  <script src="admin.js" defer></script>
+  <script src="js/common/client-utils.js" defer></script>
+  <script src="js/admin/admin-common.js" defer></script>
+  <script src="js/admin/admin.js" defer></script>
 </body>
 
 </html>

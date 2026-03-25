@@ -1,70 +1,35 @@
-const CART_STORAGE_KEY = "future-drinks-cart-v1";
-const CART_MAX_QTY = 999;
-
-function toPositiveInt(value) {
-  const parsed = Number.parseInt(String(value), 10);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return null;
+/**
+ * Cart controller.
+ * Orchestrates storage, rendering, and user interaction.
+ */
+(function initCartController(global) {
+  const storage = global.cartStorage;
+  const view = global.cartView;
+  if (!storage) {
+    throw new Error("cart-storage.js must be loaded before cart.js");
   }
-  return parsed;
-}
-
-function toQuantity(value) {
-  const parsed = Number.parseInt(String(value), 10);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    return 0;
+  if (!view) {
+    throw new Error("cart-view.js must be loaded before cart.js");
   }
-  return Math.min(parsed, CART_MAX_QTY);
-}
 
-function formatMoney(value) {
-  const amount = Number.parseFloat(String(value));
-  if (!Number.isFinite(amount) || amount < 0) {
-    return "$0.00";
-  }
-  return `$${amount.toFixed(2)}`;
-}
+  const {
+    CART_MAX_QTY,
+    toPositiveInt,
+    toQuantity,
+    formatMoney,
+    loadCartMap,
+    saveCartMap,
+    mapToEntries,
+  } = storage;
 
-function loadCartMap() {
-  try {
-    const raw = window.localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) {
-      return {};
-    }
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") {
-      return {};
-    }
+  const {
+    buildEmptyCartState,
+    buildCartRow,
+    findItemPid,
+    readButtonQuantity,
+    flashAddState,
+  } = view;
 
-    const normalized = {};
-    for (const [pidRaw, qtyRaw] of Object.entries(parsed)) {
-      const pid = toPositiveInt(pidRaw);
-      const qty = toQuantity(qtyRaw);
-      if (pid && qty > 0) {
-        normalized[String(pid)] = qty;
-      }
-    }
-    return normalized;
-  } catch (err) {
-    return {};
-  }
-}
-
-function saveCartMap(map) {
-  window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(map));
-}
-
-function mapToEntries(map) {
-  return Object.entries(map)
-    .map(([pidRaw, qtyRaw]) => ({
-      pid: toPositiveInt(pidRaw),
-      quantity: toQuantity(qtyRaw),
-    }))
-    .filter((item) => item.pid && item.quantity > 0)
-    .sort((a, b) => a.pid - b.pid);
-}
-
-(function initCart() {
   const cartWrap = document.querySelector(".cart");
   if (!cartWrap) {
     return;
@@ -131,6 +96,7 @@ function mapToEntries(map) {
     if (!safePid) {
       return;
     }
+
     const increment = toQuantity(qty);
     if (increment <= 0) {
       return;
@@ -158,13 +124,18 @@ function mapToEntries(map) {
     if (!safePid) {
       throw new Error("Invalid pid.");
     }
+
     if (productCache.has(safePid)) {
       return productCache.get(safePid);
     }
 
     const promise = fetch(`/api/products/${safePid}`).then(async (response) => {
       if (!response.ok) {
-        throw new Error("Product not found.");
+        const err = new Error(response.status === 404
+          ? "Product not found."
+          : "Failed to load product.");
+        err.status = response.status;
+        throw err;
       }
       return response.json();
     });
@@ -178,84 +149,21 @@ function mapToEntries(map) {
     }
   }
 
-  function buildEmptyCartState() {
-    const div = document.createElement("div");
-    div.className = "cart-empty";
-    div.textContent = "Your cart is empty.";
-    return div;
-  }
-
-  function buildCartRow(item) {
-    const row = document.createElement("div");
-    row.className = "cart-item";
-    row.dataset.pid = String(item.product.pid);
-
-    const image = document.createElement("img");
-    image.src = item.product.thumb_path || item.product.image_path || "";
-    image.alt = item.product.name;
-
-    const meta = document.createElement("div");
-    meta.className = "meta";
-
-    const title = document.createElement("strong");
-    title.textContent = item.product.name;
-
-    const price = document.createElement("small");
-    price.textContent = `${formatMoney(item.product.price)} each`;
-
-    const quantityWrap = document.createElement("div");
-    quantityWrap.className = "cart-qty";
-
-    const decBtn = document.createElement("button");
-    decBtn.type = "button";
-    decBtn.className = "cart-qty-btn";
-    decBtn.dataset.cartAction = "decrement";
-    decBtn.textContent = "-";
-    decBtn.setAttribute("aria-label", "Decrease quantity");
-
-    const qtyInput = document.createElement("input");
-    qtyInput.type = "number";
-    qtyInput.min = "1";
-    qtyInput.max = String(CART_MAX_QTY);
-    qtyInput.value = String(item.quantity);
-    qtyInput.setAttribute("aria-label", `${item.product.name} quantity`);
-    qtyInput.dataset.cartInput = "quantity";
-
-    const incBtn = document.createElement("button");
-    incBtn.type = "button";
-    incBtn.className = "cart-qty-btn";
-    incBtn.dataset.cartAction = "increment";
-    incBtn.textContent = "+";
-    incBtn.setAttribute("aria-label", "Increase quantity");
-
-    quantityWrap.append(decBtn, qtyInput, incBtn);
-
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "cart-remove-btn";
-    removeBtn.dataset.cartAction = "remove";
-    removeBtn.textContent = "Remove";
-
-    meta.append(title, price, quantityWrap, removeBtn);
-    row.append(image, meta);
-    return row;
-  }
-
   async function resolveDisplayItems(entries) {
     const rows = await Promise.all(
       entries.map(async (entry) => {
         try {
           const product = await fetchProduct(entry.pid);
-          return { ...entry, product };
+          return { ...entry, product, error: null };
         } catch (err) {
-          return { ...entry, product: null };
+          return { ...entry, product: null, error: err };
         }
       })
     );
 
     let changed = false;
     for (const row of rows) {
-      if (!row.product) {
+      if (!row.product && row.error && row.error.status === 404) {
         delete cartMap[String(row.pid)];
         changed = true;
       }
@@ -300,11 +208,18 @@ function mapToEntries(map) {
 
     itemsEl.innerHTML = "";
     let total = 0;
+
     for (const item of displayItems) {
-      itemsEl.appendChild(buildCartRow(item));
+      const row = buildCartRow(item);
+      if (!row) {
+        continue;
+      }
+
+      itemsEl.appendChild(row);
       const price = Number.parseFloat(item.product.price);
       total += (Number.isFinite(price) ? price : 0) * item.quantity;
     }
+
     totalEl.textContent = formatMoney(total);
     notifyCartUpdate();
   }
@@ -315,20 +230,13 @@ function mapToEntries(map) {
     });
   }
 
-  function findItemPid(target) {
-    const row = target.closest(".cart-item");
-    if (!row) {
-      return null;
-    }
-    return toPositiveInt(row.dataset.pid);
-  }
-
   if (itemsEl) {
     itemsEl.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-cart-action]");
       if (!button) {
         return;
       }
+
       const pid = findItemPid(button);
       if (!pid) {
         return;
@@ -350,36 +258,14 @@ function mapToEntries(map) {
       if (!input) {
         return;
       }
+
       const pid = findItemPid(input);
       if (!pid) {
         return;
       }
+
       setQuantity(pid, input.value);
     });
-  }
-
-  function readButtonQuantity(button) {
-    const selector = button.dataset.cartQtySource;
-    if (!selector) {
-      return 1;
-    }
-
-    const input = document.querySelector(selector);
-    if (!input) {
-      return 1;
-    }
-    const qty = toQuantity(input.value);
-    return qty > 0 ? qty : 1;
-  }
-
-  function flashAddState(button) {
-    const originalText = button.textContent;
-    button.textContent = "Added";
-    button.disabled = true;
-    window.setTimeout(() => {
-      button.textContent = originalText;
-      button.disabled = false;
-    }, 650);
   }
 
   document.addEventListener("click", (event) => {
@@ -398,7 +284,7 @@ function mapToEntries(map) {
     flashAddState(addBtn);
   });
 
-  window.shopCart = {
+  global.shopCart = {
     add(pid, qty = 1) {
       addItem(pid, qty);
     },
@@ -428,4 +314,4 @@ function mapToEntries(map) {
   };
 
   queueRender();
-})();
+})(window);

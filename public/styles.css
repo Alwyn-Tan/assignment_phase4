@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 :root {
   --primary: #635bff;
   --primary-dark: #0a2540;
@@ -16,7 +14,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { margin: 0; font-family: 'Inter', -apple-system, sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif; color: var(--text); background: var(--bg); line-height: 1.6; }
 a { color: inherit; text-decoration: none; transition: .2s; }
 img { max-width: 100%; display: block; }
 .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
@@ -166,6 +164,7 @@ img { max-width: 100%; display: block; }
 .product-gallery { display: grid; gap: 16px; }
 .gallery-stage { position: relative; display: grid; place-items: center; padding: 32px; background: #fafbfc; border-radius: var(--radius); min-height: 320px; }
 .gallery-slide { opacity: 0; transform: translateY(6px) scale(.98); transition: opacity .25s ease, transform .25s ease; position: absolute; inset: 0; display: grid; place-items: center; margin: 0; }
+.gallery-slide-active { opacity: 1; transform: none; position: relative; }
 .gallery-slide img { width: 320px; max-width: 100%; }
 #gallery-1:checked ~ .gallery-stage .slide-1,
 #gallery-2:checked ~ .gallery-stage .slide-2,
